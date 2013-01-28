@@ -1,0 +1,21 @@
+﻿<local:MainViewModel 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Groceries" 
+    SampleProperty="Sample Text Property Value">
+    
+    <local:MainViewModel.Items>
+        <local:ItemViewModel LineOne="milk"/>
+        <local:ItemViewModel LineOne="cookies"/>
+        <local:ItemViewModel LineOne="pasta"/>
+        <local:ItemViewModel LineOne="beef"/>
+        <local:ItemViewModel LineOne="cheese"/>
+        <local:ItemViewModel LineOne="lunchmeat"/>
+        <local:ItemViewModel LineOne="bread"/>
+        <local:ItemViewModel LineOne="chips"/>
+        <local:ItemViewModel LineOne="ketchup"/>
+        <local:ItemViewModel LineOne="mustard"/>
+        <local:ItemViewModel LineOne="chicken"/>
+    </local:MainViewModel.Items>
+    
+</local:MainViewModel>
