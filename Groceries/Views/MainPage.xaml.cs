@@ -47,5 +47,10 @@ namespace Groceries
                 App.ViewModel.LoadData();
             }
         }
+
+        private void RefreshList_Click(object sender, System.EventArgs e)
+        {
+            App.ViewModel.LoadData();
+        }
     }
 }

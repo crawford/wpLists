@@ -1,79 +1,87 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 
 namespace Groceries
 {
     public class ItemViewModel : INotifyPropertyChanged
     {
-        private string _lineOne;
-        /// <summary>
-        /// Sample ViewModel property; this property is used in the view to display its value using a Binding.
-        /// </summary>
-        /// <returns></returns>
-        public string LineOne
+        private ulong _id;
+        private string _name;
+        private bool _needed;
+        private bool _deleted;
+
+        public ItemViewModel() { }
+
+        public ItemViewModel(ulong id, string name, bool needed, bool deleted)
+        {
+            _id = id;
+            _name = name;
+            _needed = needed;
+            _deleted = deleted;
+        }
+
+        #region Getters and Setters
+
+        public ulong Id
         {
             get
             {
-                return _lineOne;
+                return _id;
             }
             set
             {
-                if (value != _lineOne)
+                if (value != _id)
                 {
-                    _lineOne = value;
-                    NotifyPropertyChanged("LineOne");
+                    _id = value;
+                    NotifyPropertyChanged("Id");
                 }
             }
         }
 
-        private string _lineTwo;
-        /// <summary>
-        /// Sample ViewModel property; this property is used in the view to display its value using a Binding.
-        /// </summary>
-        /// <returns></returns>
-        public string LineTwo
+        public string Name
         {
             get
             {
-                return _lineTwo;
+                return _name;
             }
             set
             {
-                if (value != _lineTwo)
+                if (value != _name)
                 {
-                    _lineTwo = value;
-                    NotifyPropertyChanged("LineTwo");
+                    _name = value;
+                    NotifyPropertyChanged("Name");
                 }
             }
         }
 
-        private string _lineThree;
-        /// <summary>
-        /// Sample ViewModel property; this property is used in the view to display its value using a Binding.
-        /// </summary>
-        /// <returns></returns>
-        public string LineThree
+        public bool Needed
         {
             get
             {
-                return _lineThree;
+                return _needed;
             }
             set
             {
-                if (value != _lineThree)
+                if (value != _needed)
                 {
-                    _lineThree = value;
-                    NotifyPropertyChanged("LineThree");
+                    _needed = value;
+                    NotifyPropertyChanged("Needed");
+                }
+            }
+        }
+
+        public bool Deleted
+        {
+            get
+            {
+                return _deleted;
+            }
+            set
+            {
+                if (value != _deleted)
+                {
+                    _deleted = value;
+                    NotifyPropertyChanged("Deleted");
                 }
             }
         }
@@ -87,5 +95,7 @@ namespace Groceries
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        #endregion
     }
 }
