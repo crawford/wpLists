@@ -50,7 +50,7 @@ namespace Groceries
 
         private void RefreshList_Click(object sender, System.EventArgs e)
         {
-            App.ViewModel.LoadData();
+            App.ViewModel.UpdateData();
         }
     }
 }

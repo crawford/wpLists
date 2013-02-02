@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Data.Linq.Mapping;
 
 namespace Groceries
 {
+    [Table]
     public class ItemViewModel : INotifyPropertyChanged
     {
         private ulong _id;
@@ -22,6 +24,7 @@ namespace Groceries
 
         #region Getters and Setters
 
+        [Column(IsPrimaryKey = true, CanBeNull = false)]
         public ulong Id
         {
             get
@@ -38,6 +41,7 @@ namespace Groceries
             }
         }
 
+        [Column]
         public string Name
         {
             get
@@ -54,6 +58,7 @@ namespace Groceries
             }
         }
 
+        [Column]
         public bool Needed
         {
             get
@@ -70,6 +75,7 @@ namespace Groceries
             }
         }
 
+        [Column]
         public bool Deleted
         {
             get

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Linq;
+using System.Data.Linq.Mapping;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Windows;
 using Newtonsoft.Json;
@@ -9,9 +12,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Groceries.Data
 {
-    class WebService
+    class ApiService
     {
         private const string URL_FORMAT_ITEMS = @"http://lists.delaha.us/lists/{0}/items";
+        private ListsDatabase _db;
 
         public delegate void SuccessEventHandler();
         public delegate void ErrorEventHandler(Exception e);
@@ -19,11 +23,47 @@ namespace Groceries.Data
         public event SuccessEventHandler UpdateGroceryItemsCompleted;
         public event ErrorEventHandler UpdatedGroceryItemsFailed;
 
-        internal class RequestState {
+        private class RequestState {
             public SuccessEventHandler successEvent { get; set; }
             public ErrorEventHandler errorEvent { get; set; }
             public HttpWebRequest webRequest { get; set; }
             public Action<JsonReader> jsonHandler { get; set; }
+        }
+
+        private class ListsDatabase : DataContext
+        {
+            public ListsDatabase() : base("datasource=isostore:/lists.sdf") { }
+
+            public Table<ItemViewModel> Lists;
+        }
+
+        public ApiService()
+        {
+            _db = new ListsDatabase();
+            if (!_db.DatabaseExists())
+                _db.CreateDatabase();
+        }
+
+        public void GetGroceryItems(ObservableCollection<ItemViewModel> items)
+        {
+            foreach (ItemViewModel tmpItem in _db.Lists.OrderBy(item => item.Name))
+            {
+                bool found = false;
+                foreach (ItemViewModel item in items)
+                {
+                    if (item.Id == tmpItem.Id)
+                    {
+                        item.Id = tmpItem.Id;
+                        item.Name = tmpItem.Name;
+                        item.Needed = tmpItem.Needed;
+                        item.Deleted = tmpItem.Deleted;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    items.Add(tmpItem);
+            }
         }
 
         public void UpdateGroceryItemsAsync(ObservableCollection<ItemViewModel> items)
@@ -42,29 +82,28 @@ namespace Groceries.Data
                         bool needed = jItem.Value<bool>("needed");
                         bool deleted = jItem.Value<bool>("deleted");
 
-                        ItemViewModel item = null;
-                        foreach (ItemViewModel i in items) {
-                            if (i.Id == id) {
-                                item = i;
-                                break;
-                            }
-                        }
-                        
-                        Deployment.Current.Dispatcher.BeginInvoke(() =>
+                        ItemViewModel item = _db.Lists.SingleOrDefault(it => it.Id == id);
+                        if (item != null)
                         {
-                            if (item != null)
-                            {
-                                item.Id = id;
-                                item.Name = name;
-                                item.Needed = needed;
-                                item.Deleted = deleted;
-                            }
-                            else
-                            {
-                                items.Add(new ItemViewModel(id, name, needed, deleted));
-                            }
-                        });
+                            item.Id = id;
+                            item.Name = name;
+                            item.Needed = needed;
+                            item.Deleted = deleted;
+                        }
+                        else
+                        {
+                            _db.Lists.InsertOnSubmit(new ItemViewModel(id, name, needed, deleted));
+                        }
                     }
+
+                    _db.SubmitChanges(ConflictMode.ContinueOnConflict);
+                    if (_db.ChangeConflicts.Count > 0)
+                        System.Diagnostics.Debug.WriteLine(_db.ChangeConflicts);
+
+                    Deployment.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        GetGroceryItems(items);
+                    });
 
                     if (UpdateGroceryItemsCompleted != null)
                         UpdateGroceryItemsCompleted();
@@ -79,6 +118,8 @@ namespace Groceries.Data
             {
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
                 request.AllowReadStreamBuffering = false;
+                request.Accept = "application/json";
+                request.Method = "GET";
                 state.webRequest = request;
                 request.BeginGetResponse(new AsyncCallback(RequestCallback), state);
             }

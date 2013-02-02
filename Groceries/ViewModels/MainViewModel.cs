@@ -61,7 +61,13 @@ namespace Groceries
         /// </summary>
         public void LoadData()
         {
-            WebService web = new WebService();
+            ApiService api = new ApiService();
+            api.GetGroceryItems(this.Items);
+        }
+
+        public void UpdateData()
+        {
+            ApiService web = new ApiService();
             web.UpdatedGroceryItemsFailed += (error) =>
             {
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
