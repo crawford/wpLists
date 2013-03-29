@@ -12,9 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
-using Groceries.Data;
+using Lists.Data;
 
-namespace Groceries
+namespace Lists
 {
     public class MainViewModel : INotifyPropertyChanged
     {
@@ -62,20 +62,20 @@ namespace Groceries
         public void LoadData()
         {
             ApiService api = new ApiService();
-            api.GetGroceryItems(this.Items);
+            api.GetListItems(this.Items);
         }
 
         public void UpdateData()
         {
             ApiService web = new ApiService();
-            web.UpdatedGroceryItemsFailed += (error) =>
+            web.UpdateListItemsFailed += (error) =>
             {
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
                     MessageBox.Show(error.Message);
                 });
             };
-            web.UpdateGroceryItemsAsync(this.Items);
+            web.UpdateListItemsAsync(this.Items);
 
             this.IsDataLoaded = true;
         }

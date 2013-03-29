@@ -1,5 +1,5 @@
 ﻿<phone:PhoneApplicationPage
-    x:Class="Groceries.MainPage"
+    x:Class="Lists.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -21,7 +21,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="ApplicationTitle" Grid.Row="0" Text="GROCERIES" Margin="24,17,0,28" Style="{StaticResource PhoneTextNormalStyle}"/>
+        <TextBlock x:Name="ApplicationTitle" Grid.Row="0" Text="COMMON LIST" Margin="24,17,0,28" Style="{StaticResource PhoneTextNormalStyle}"/>
 
         <ListBox x:Name="MainListBox" Grid.Row="1" Margin="12,0,12,0" ItemsSource="{Binding Items}" SelectionChanged="MainListBox_SelectionChanged">
             <ListBox.ItemTemplate>

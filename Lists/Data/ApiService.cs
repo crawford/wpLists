@@ -10,7 +10,7 @@ using System.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Groceries.Data
+namespace Lists.Data
 {
     class ApiService
     {
@@ -20,8 +20,8 @@ namespace Groceries.Data
         public delegate void SuccessEventHandler();
         public delegate void ErrorEventHandler(Exception e);
 
-        public event SuccessEventHandler UpdateGroceryItemsCompleted;
-        public event ErrorEventHandler UpdatedGroceryItemsFailed;
+        public event SuccessEventHandler UpdateListItemsCompleted;
+        public event ErrorEventHandler UpdateListItemsFailed;
 
         private class RequestState {
             public SuccessEventHandler successEvent { get; set; }
@@ -44,7 +44,7 @@ namespace Groceries.Data
                 _db.CreateDatabase();
         }
 
-        public void GetGroceryItems(ObservableCollection<ItemViewModel> items)
+        public void GetListItems(ObservableCollection<ItemViewModel> items)
         {
             foreach (ItemViewModel tmpItem in _db.Lists.OrderBy(item => item.Name))
             {
@@ -66,12 +66,12 @@ namespace Groceries.Data
             }
         }
 
-        public void UpdateGroceryItemsAsync(ObservableCollection<ItemViewModel> items)
+        public void UpdateListItemsAsync(ObservableCollection<ItemViewModel> items)
         {
             RequestState state = new RequestState()
             {
-                errorEvent = UpdatedGroceryItemsFailed,
-                successEvent = UpdateGroceryItemsCompleted,
+                errorEvent = UpdateListItemsFailed,
+                successEvent = UpdateListItemsCompleted,
                 jsonHandler = (reader) =>
                 {
                     JArray list = JArray.Load(reader);
@@ -85,8 +85,6 @@ namespace Groceries.Data
                         ItemViewModel item = _db.Lists.SingleOrDefault(it => it.Id == id);
                         if (item != null)
                         {
-                            item.Id = id;
-                            item.Name = name;
                             item.Needed = needed;
                             item.Deleted = deleted;
                         }
@@ -102,14 +100,14 @@ namespace Groceries.Data
 
                     Deployment.Current.Dispatcher.BeginInvoke(() =>
                     {
-                        GetGroceryItems(items);
+                        GetListItems(items);
                     });
 
-                    if (UpdateGroceryItemsCompleted != null)
-                        UpdateGroceryItemsCompleted();
+                    if (UpdateListItemsCompleted != null)
+                        UpdateListItemsCompleted();
                 }
             };
-            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_ITEMS, "test")), state);
+            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_ITEMS, "00000000-0000-0000-0000-000000000000")), state);
         }
 
         private void BeginRequestAsync(Uri url, RequestState state)

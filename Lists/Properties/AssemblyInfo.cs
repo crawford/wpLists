@@ -6,11 +6,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Groceries")]
+[assembly: AssemblyTitle("Lists")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("CodebossApps")]
-[assembly: AssemblyProduct("Groceries")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Lists")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +21,7 @@ using System.Resources;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("86c90f60-f5d8-4ce4-803a-7cb9d80c445c")]
+[assembly: Guid("517a4e91-af47-4d9e-b0e0-7bc5df4cefa9")]
 
 // Version information for an assembly consists of the following four values:
 //

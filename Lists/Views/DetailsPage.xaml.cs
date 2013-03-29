@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 
-namespace Groceries
+namespace Lists
 {
     public partial class DetailsPage : PhoneApplicationPage
     {

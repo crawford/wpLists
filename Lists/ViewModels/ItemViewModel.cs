@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
 
-namespace Groceries
+namespace Lists
 {
     [Table]
     public class ItemViewModel : INotifyPropertyChanged
