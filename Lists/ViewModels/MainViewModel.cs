@@ -63,6 +63,7 @@ namespace Lists
         {
             ApiService api = new ApiService();
             api.GetListItems(this.Items);
+            UpdateData();
         }
 
         public void UpdateData()

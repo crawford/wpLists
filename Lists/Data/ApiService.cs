@@ -12,9 +12,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Lists.Data
 {
-    class ApiService
+    class ApiService : IDisposable
     {
+        private const string URL_FORMAT_LIST  = @"http://lists.delaha.us/lists/{0}";
         private const string URL_FORMAT_ITEMS = @"http://lists.delaha.us/lists/{0}/items";
+        private const string URL_FORMAT_ITEM  = @"http://lists.delaha.us/lists/{0}/items/{1}";
         private ListsDatabase _db;
 
         public delegate void SuccessEventHandler();
@@ -44,25 +46,26 @@ namespace Lists.Data
                 _db.CreateDatabase();
         }
 
+        public void Dispose()
+        {
+            _db.Dispose();
+        }
+
         public void GetListItems(ObservableCollection<ItemViewModel> items)
         {
-            foreach (ItemViewModel tmpItem in _db.Lists.OrderBy(item => item.Name))
+            foreach (ItemViewModel dbItem in _db.Lists.OrderBy(i => i.Name))
             {
-                bool found = false;
-                foreach (ItemViewModel item in items)
+                ItemViewModel item = items.FirstOrDefault(i => i.Id == dbItem.Id);
+                if (item == null)
                 {
-                    if (item.Id == tmpItem.Id)
-                    {
-                        item.Id = tmpItem.Id;
-                        item.Name = tmpItem.Name;
-                        item.Needed = tmpItem.Needed;
-                        item.Deleted = tmpItem.Deleted;
-                        found = true;
-                        break;
-                    }
+                    items.Add(dbItem);
                 }
-                if (!found)
-                    items.Add(tmpItem);
+                else
+                {
+                    item.Name = dbItem.Name;
+                    item.Needed = dbItem.Needed;
+                    item.Deleted = dbItem.Deleted;
+                }
             }
         }
 
@@ -81,16 +84,18 @@ namespace Lists.Data
                         string name =jItem.Value<string>("name");
                         bool needed = jItem.Value<bool>("needed");
                         bool deleted = jItem.Value<bool>("deleted");
+                        DateTime lastModified = jItem.Value<DateTime>("updated_at");
 
                         ItemViewModel item = _db.Lists.SingleOrDefault(it => it.Id == id);
                         if (item != null)
                         {
                             item.Needed = needed;
                             item.Deleted = deleted;
+                            item.LastModified = lastModified;
                         }
                         else
                         {
-                            _db.Lists.InsertOnSubmit(new ItemViewModel(id, name, needed, deleted));
+                            _db.Lists.InsertOnSubmit(new ItemViewModel(id, name, needed, deleted, lastModified));
                         }
                     }
 
@@ -107,17 +112,17 @@ namespace Lists.Data
                         UpdateListItemsCompleted();
                 }
             };
-            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_ITEMS, "00000000-0000-0000-0000-000000000000")), state);
+            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_ITEMS, "00000000-0000-0000-0000-000000000000")), state, "GET");
         }
 
-        private void BeginRequestAsync(Uri url, RequestState state)
+        private void BeginRequestAsync(Uri url, RequestState state, string method)
         {
             try
             {
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
                 request.AllowReadStreamBuffering = false;
                 request.Accept = "application/json";
-                request.Method = "GET";
+                request.Method = method;
                 state.webRequest = request;
                 request.BeginGetResponse(new AsyncCallback(RequestCallback), state);
             }

@@ -11,15 +11,17 @@ namespace Lists
         private string _name;
         private bool _needed;
         private bool _deleted;
+        private DateTime _lastModified;
 
         public ItemViewModel() { }
 
-        public ItemViewModel(ulong id, string name, bool needed, bool deleted)
+        public ItemViewModel(ulong id, string name, bool needed, bool deleted, DateTime lastModified)
         {
             _id = id;
             _name = name;
             _needed = needed;
             _deleted = deleted;
+            _lastModified = lastModified;
         }
 
         #region Getters and Setters
@@ -88,6 +90,23 @@ namespace Lists
                 {
                     _deleted = value;
                     NotifyPropertyChanged("Deleted");
+                }
+            }
+        }
+
+        [Column]
+        public DateTime LastModified
+        {
+            get
+            {
+                return _lastModified;
+            }
+            set
+            {
+                if (value != _lastModified)
+                {
+                    _lastModified = value;
+                    NotifyPropertyChanged("LastModified");
                 }
             }
         }
