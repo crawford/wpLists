@@ -20,35 +20,11 @@ namespace Lists
     {
         public MainViewModel()
         {
-            this.Items = new ObservableCollection<ItemViewModel>();
-            this.Items.CollectionChanged += (s, o) => { NotifyPropertyChanged("Items"); };
+            Lists = new ObservableCollection<ListViewModel>();
+            Lists.CollectionChanged += (s, o) => { NotifyPropertyChanged("Lists"); };
         }
 
-        /// <summary>
-        /// A collection for ItemViewModel objects.
-        /// </summary>
-        public ObservableCollection<ItemViewModel> Items { get; private set; }
-
-        private string _sampleProperty = "Sample Runtime Property Value";
-        /// <summary>
-        /// Sample ViewModel property; this property is used in the view to display its value using a Binding
-        /// </summary>
-        /// <returns></returns>
-        public string SampleProperty
-        {
-            get
-            {
-                return _sampleProperty;
-            }
-            set
-            {
-                if (value != _sampleProperty)
-                {
-                    _sampleProperty = value;
-                    NotifyPropertyChanged("SampleProperty");
-                }
-            }
-        }
+        public ObservableCollection<ListViewModel> Lists { get; private set; }
 
         public bool IsDataLoaded
         {
@@ -56,13 +32,10 @@ namespace Lists
             private set;
         }
 
-        /// <summary>
-        /// Creates and adds a few ItemViewModel objects into the Items collection.
-        /// </summary>
         public void LoadData()
         {
             ApiService api = new ApiService();
-            api.GetListItems(this.Items);
+            api.GetLists(Lists);
             UpdateData();
         }
 
@@ -76,9 +49,15 @@ namespace Lists
                     MessageBox.Show(error.Message);
                 });
             };
-            web.UpdateListItemsAsync(this.Items);
 
-            this.IsDataLoaded = true;
+            Lists.Add(new ListViewModel(new Guid("00000000-0000-0000-0000-000000000000"), "?", new ObservableCollection<ItemViewModel>()));
+            Lists.Add(new ListViewModel(new Guid("00000000-0000-0000-0000-000000000001"), "?", new ObservableCollection<ItemViewModel>()));
+
+            //Create UpdateAllListsAsync()
+            foreach (ListViewModel list in Lists)
+                web.UpdateListAsync(list);
+
+            IsDataLoaded = true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

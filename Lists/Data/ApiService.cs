@@ -36,7 +36,8 @@ namespace Lists.Data
         {
             public ListsDatabase() : base("datasource=isostore:/lists.sdf") { }
 
-            public Table<ItemViewModel> Lists;
+            public Table<ListViewModel> Lists;
+            public Table<ItemViewModel> Items;
         }
 
         public ApiService()
@@ -51,25 +52,47 @@ namespace Lists.Data
             _db.Dispose();
         }
 
-        public void GetListItems(ObservableCollection<ItemViewModel> items)
+        public void GetLists(ObservableCollection<ListViewModel> lists)
         {
-            foreach (ItemViewModel dbItem in _db.Lists.OrderBy(i => i.Name))
+            lock (_db)
             {
-                ItemViewModel item = items.FirstOrDefault(i => i.Id == dbItem.Id);
-                if (item == null)
+                foreach (ListViewModel dbList in _db.Lists.OrderBy(i => i.Title))
                 {
-                    items.Add(dbItem);
-                }
-                else
-                {
-                    item.Name = dbItem.Name;
-                    item.Needed = dbItem.Needed;
-                    item.Deleted = dbItem.Deleted;
+                    ListViewModel list = lists.FirstOrDefault(i => i.Id == dbList.Id);
+                    if (list == null)
+                    {
+                        lists.Add(dbList);
+                    }
+                    else
+                    {
+                        list.Title = dbList.Title;
+                    }
                 }
             }
         }
 
-        public void UpdateListItemsAsync(ObservableCollection<ItemViewModel> items)
+        public void GetListItems(ObservableCollection<ItemViewModel> items, Guid listId)
+        {
+            lock (_db)
+            {
+                foreach (ItemViewModel dbItem in _db.Items.Where(i => i.ListId == listId).OrderBy(i => i.Name))
+                {
+                    ItemViewModel item = items.FirstOrDefault(i => i.Id == dbItem.Id);
+                    if (item == null)
+                    {
+                        items.Add(dbItem);
+                    }
+                    else
+                    {
+                        item.Name = dbItem.Name;
+                        item.Needed = dbItem.Needed;
+                        item.Deleted = dbItem.Deleted;
+                    }
+                }
+            }
+        }
+
+        public void UpdateListAsync(ListViewModel list)
         {
             RequestState state = new RequestState()
             {
@@ -77,8 +100,12 @@ namespace Lists.Data
                 successEvent = UpdateListItemsCompleted,
                 jsonHandler = (reader) =>
                 {
-                    JArray list = JArray.Load(reader);
-                    foreach (JObject jItem in list)
+                    JObject jList = JObject.Load(reader);
+                    string title = jList.Value<string>("title");
+                    Deployment.Current.Dispatcher.BeginInvoke(() => { list.Title = title; });
+                    JArray items = jList.Value<JArray>("items");
+
+                    foreach (JObject jItem in items)
                     {
                         ulong id = jItem.Value<ulong>("id");
                         string name =jItem.Value<string>("name");
@@ -86,33 +113,43 @@ namespace Lists.Data
                         bool deleted = jItem.Value<bool>("deleted");
                         DateTime lastModified = jItem.Value<DateTime>("updated_at");
 
-                        ItemViewModel item = _db.Lists.SingleOrDefault(it => it.Id == id);
-                        if (item != null)
+                        lock (_db)
                         {
-                            item.Needed = needed;
-                            item.Deleted = deleted;
-                            item.LastModified = lastModified;
-                        }
-                        else
-                        {
-                            _db.Lists.InsertOnSubmit(new ItemViewModel(id, name, needed, deleted, lastModified));
+                            ItemViewModel item = (from i in _db.Items
+                                                  where i.ListId == list.Id &&
+                                                        i.Id == id
+                                                  select i).FirstOrDefault();
+
+                            if (item != null)
+                            {
+                                item.Needed = needed;
+                                item.Deleted = deleted;
+                                item.LastModified = lastModified;
+                            }
+                            else
+                            {
+                                _db.Items.InsertOnSubmit(new ItemViewModel(id, name, needed, deleted, lastModified, list.Id));
+                            }
                         }
                     }
 
-                    _db.SubmitChanges(ConflictMode.ContinueOnConflict);
-                    if (_db.ChangeConflicts.Count > 0)
-                        System.Diagnostics.Debug.WriteLine(_db.ChangeConflicts);
+                    lock (_db)
+                    {
+                        _db.SubmitChanges(ConflictMode.ContinueOnConflict);
+                        if (_db.ChangeConflicts.Count > 0)
+                            System.Diagnostics.Debug.WriteLine(_db.ChangeConflicts);
+                    }
 
                     Deployment.Current.Dispatcher.BeginInvoke(() =>
                     {
-                        GetListItems(items);
+                        GetListItems(list.Items, list.Id);
                     });
 
                     if (UpdateListItemsCompleted != null)
                         UpdateListItemsCompleted();
                 }
             };
-            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_ITEMS, "00000000-0000-0000-0000-000000000000")), state, "GET");
+            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_LIST, list.Id)), state, "GET");
         }
 
         private void BeginRequestAsync(Uri url, RequestState state, string method)

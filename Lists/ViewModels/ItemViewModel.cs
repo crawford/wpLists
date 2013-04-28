@@ -12,16 +12,18 @@ namespace Lists
         private bool _needed;
         private bool _deleted;
         private DateTime _lastModified;
+        private Guid _listId;
 
         public ItemViewModel() { }
 
-        public ItemViewModel(ulong id, string name, bool needed, bool deleted, DateTime lastModified)
+        public ItemViewModel(ulong id, string name, bool needed, bool deleted, DateTime lastModified, Guid listId)
         {
             _id = id;
             _name = name;
             _needed = needed;
             _deleted = deleted;
             _lastModified = lastModified;
+            _listId = listId;
         }
 
         #region Getters and Setters
@@ -29,18 +31,8 @@ namespace Lists
         [Column(IsPrimaryKey = true, CanBeNull = false)]
         public ulong Id
         {
-            get
-            {
-                return _id;
-            }
-            set
-            {
-                if (value != _id)
-                {
-                    _id = value;
-                    NotifyPropertyChanged("Id");
-                }
-            }
+            get { return _id; }
+            set { _id = value; }
         }
 
         [Column]
@@ -97,18 +89,15 @@ namespace Lists
         [Column]
         public DateTime LastModified
         {
-            get
-            {
-                return _lastModified;
-            }
-            set
-            {
-                if (value != _lastModified)
-                {
-                    _lastModified = value;
-                    NotifyPropertyChanged("LastModified");
-                }
-            }
+            get { return _lastModified; }
+            set { _lastModified = value; }
+        }
+
+        [Column(CanBeNull = false)]
+        public Guid ListId
+        {
+            get { return _listId; }
+            set { _listId = value; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
