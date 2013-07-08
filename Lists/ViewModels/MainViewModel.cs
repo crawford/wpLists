@@ -50,9 +50,6 @@ namespace Lists
                 });
             };
 
-            Lists.Add(new ListViewModel(new Guid("00000000-0000-0000-0000-000000000000"), "?", new ObservableCollection<ItemViewModel>()));
-            Lists.Add(new ListViewModel(new Guid("00000000-0000-0000-0000-000000000001"), "?", new ObservableCollection<ItemViewModel>()));
-
             //Create UpdateAllListsAsync()
             foreach (ListViewModel list in Lists)
                 web.UpdateListAsync(list);

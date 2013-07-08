@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
-
+//TODO Add one to many relation to list items
 namespace Lists
 {
     [Table]

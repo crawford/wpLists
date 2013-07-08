@@ -19,7 +19,7 @@ namespace Lists.Data
         private const string URL_FORMAT_ITEM  = @"http://lists.delaha.us/lists/{0}/items/{1}";
         private ListsDatabase _db;
 
-        public delegate void SuccessEventHandler();
+        public delegate void SuccessEventHandler(ListViewModel list);
         public delegate void ErrorEventHandler(Exception e);
 
         public event SuccessEventHandler UpdateListItemsCompleted;
@@ -52,13 +52,36 @@ namespace Lists.Data
             _db.Dispose();
         }
 
+        public ListViewModel CreateList(Guid listId, string title)
+        {
+            ListViewModel list = _db.Lists.FirstOrDefault(l => l.Id == listId);
+            if (list == null)
+            {
+                list = new ListViewModel(listId, title, new ObservableCollection<ItemViewModel>());
+                lock (_db)
+                {
+                    _db.Lists.InsertOnSubmit(list);
+                    _db.SubmitChanges(ConflictMode.ContinueOnConflict);
+                    if (_db.ChangeConflicts.Count > 0)
+                        System.Diagnostics.Debug.WriteLine(_db.ChangeConflicts);
+                }
+            }
+            else
+            {
+                list.Items = new ObservableCollection<ItemViewModel>();
+            }
+            return list;
+        }
+
         public void GetLists(ObservableCollection<ListViewModel> lists)
         {
+            lists.Clear();
             lock (_db)
             {
-                foreach (ListViewModel dbList in _db.Lists.OrderBy(i => i.Title))
+                foreach (ListViewModel dbList in _db.Lists.OrderBy(l => l.Title))
                 {
-                    ListViewModel list = lists.FirstOrDefault(i => i.Id == dbList.Id);
+                    dbList.Items = new ObservableCollection<ItemViewModel>(_db.Items.Where(i => i.ListId == dbList.Id));
+                    ListViewModel list = lists.FirstOrDefault(l => l.Id == dbList.Id);
                     if (list == null)
                     {
                         lists.Add(dbList);
@@ -102,8 +125,9 @@ namespace Lists.Data
                 {
                     JObject jList = JObject.Load(reader);
                     string title = jList.Value<string>("title");
-                    Deployment.Current.Dispatcher.BeginInvoke(() => { list.Title = title; });
                     JArray items = jList.Value<JArray>("items");
+
+                    Deployment.Current.Dispatcher.BeginInvoke(() => { list.Title = title; });
 
                     foreach (JObject jItem in items)
                     {
@@ -146,7 +170,7 @@ namespace Lists.Data
                     });
 
                     if (UpdateListItemsCompleted != null)
-                        UpdateListItemsCompleted();
+                        UpdateListItemsCompleted(list);
                 }
             };
             BeginRequestAsync(new Uri(string.Format(URL_FORMAT_LIST, list.Id)), state, "GET");

@@ -19,8 +19,9 @@
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="refresh list" Click="RefreshList_Click"/>
+                <shell:ApplicationBarMenuItem Text="settings..." Click="Settings_Click"/>
             </shell:ApplicationBar.MenuItems>
-            <shell:ApplicationBarIconButton IconUri="/Assets/AppBar/appbar.new.rest.png" Text="new item"/>
+            <shell:ApplicationBarIconButton IconUri="/Assets/AppBar/appbar.new.rest.png" Text="new item" Click="NewItem_Click"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 
