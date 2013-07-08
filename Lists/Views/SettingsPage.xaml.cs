@@ -29,7 +29,16 @@ namespace Lists.Views
 
             ListViewModel list = web.CreateList(listGuid, "?");
 
-            web.UpdateListItemsCompleted += ListSubscribeCompleted;
+            web.UpdateListItemsCompleted += () =>
+            {
+                Deployment.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    App.ViewModel.Lists.Add(list);
+                    txtListGuid.Text = "";
+                    txtListGuid.IsEnabled = true;
+                    btnSubscribe.IsEnabled = true;
+                });
+            };
             web.UpdateListItemsFailed += ListSubscribeFailed;
 
             txtListGuid.IsEnabled = false;
@@ -45,17 +54,6 @@ namespace Lists.Views
                 txtListGuid.IsEnabled = true;
                 btnSubscribe.IsEnabled = true;
                 MessageBox.Show(error.Message);
-            });
-        }
-
-        void ListSubscribeCompleted(ListViewModel list)
-        {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
-            {
-                App.ViewModel.Lists.Add(list);
-                txtListGuid.Text = "";
-                txtListGuid.IsEnabled = true;
-                btnSubscribe.IsEnabled = true;
             });
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
+using Lists.Data;
 
 namespace Lists
 {
@@ -65,6 +66,8 @@ namespace Lists
                 {
                     _needed = value;
                     NotifyPropertyChanged("Needed");
+                    ApiService api = new ApiService();
+                    api.UpdateListItemAsync(this);
                 }
             }
         }

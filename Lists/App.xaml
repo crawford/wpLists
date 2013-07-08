@@ -9,7 +9,7 @@
     <!--Application Resources-->
     <Application.Resources>
         <DataTemplate x:Key="ListItemTemplate">
-            <CheckBox Content="{Binding Name}" IsChecked="{Binding Needed}"/>
+            <CheckBox Content="{Binding Name}" IsChecked="{Binding Needed, Mode=TwoWay}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="ListTemplate">

@@ -9,6 +9,7 @@ using System.Net;
 using System.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace Lists.Data
 {
@@ -19,7 +20,7 @@ namespace Lists.Data
         private const string URL_FORMAT_ITEM  = @"http://lists.delaha.us/lists/{0}/items/{1}";
         private ListsDatabase _db;
 
-        public delegate void SuccessEventHandler(ListViewModel list);
+        public delegate void SuccessEventHandler();
         public delegate void ErrorEventHandler(Exception e);
 
         public event SuccessEventHandler UpdateListItemsCompleted;
@@ -30,6 +31,7 @@ namespace Lists.Data
             public ErrorEventHandler errorEvent { get; set; }
             public HttpWebRequest webRequest { get; set; }
             public Action<JsonReader> jsonHandler { get; set; }
+            public String postData { get; set; }
         }
 
         private class ListsDatabase : DataContext
@@ -115,6 +117,22 @@ namespace Lists.Data
             }
         }
 
+        public void UpdateListItemAsync(ItemViewModel item)
+        {
+            RequestState state = new RequestState()
+            {
+                errorEvent = UpdateListItemsFailed,
+                successEvent = UpdateListItemsCompleted,
+                postData = string.Format("needed={0}", item.Needed.ToString()),
+                jsonHandler = (reader) =>
+                {
+                    if (UpdateListItemsCompleted != null)
+                        UpdateListItemsCompleted();
+                }
+            };
+            BeginRequestAsync(new Uri(string.Format(URL_FORMAT_ITEM, item.ListId, item.Name)), state, "PUT");
+        }
+
         public void UpdateListAsync(ListViewModel list)
         {
             RequestState state = new RequestState()
@@ -170,7 +188,7 @@ namespace Lists.Data
                     });
 
                     if (UpdateListItemsCompleted != null)
-                        UpdateListItemsCompleted(list);
+                        UpdateListItemsCompleted();
                 }
             };
             BeginRequestAsync(new Uri(string.Format(URL_FORMAT_LIST, list.Id)), state, "GET");
@@ -185,7 +203,26 @@ namespace Lists.Data
                 request.Accept = "application/json";
                 request.Method = method;
                 state.webRequest = request;
-                request.BeginGetResponse(new AsyncCallback(RequestCallback), state);
+                if (state.postData != null)
+                {
+                    request.ContentType = "application/x-www-form-urlencoded";
+                    request.BeginGetRequestStream((asyncResult) =>
+                    {
+                        using (Stream postStream = request.EndGetRequestStream(asyncResult))
+                        {
+                            using (StreamWriter writer = new StreamWriter(postStream))
+                            {
+                                writer.Write(HttpUtility.UrlEncode(state.postData));
+                            }
+                        }
+
+                        request.BeginGetResponse(new AsyncCallback(RequestCallback), state);
+                    }, null);
+                }
+                else
+                {
+                    request.BeginGetResponse(new AsyncCallback(RequestCallback), state);
+                }
             }
             catch (Exception e)
             {
