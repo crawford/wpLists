@@ -75,6 +75,19 @@ namespace Lists.Data
             return list;
         }
 
+        public ItemViewModel CreateItem(string name, bool needed, ListViewModel parent)
+        {
+            ItemViewModel item = new ItemViewModel(0, name, needed, false, DateTime.Now, parent.Id);
+            lock (_db)
+            {
+                _db.Items.InsertOnSubmit(item);
+                _db.SubmitChanges(ConflictMode.ContinueOnConflict);
+                if (_db.ChangeConflicts.Count > 0)
+                    System.Diagnostics.Debug.WriteLine(_db.ChangeConflicts);
+            }
+            return item;
+        }
+
         public void GetLists(ObservableCollection<ListViewModel> lists)
         {
             lists.Clear();

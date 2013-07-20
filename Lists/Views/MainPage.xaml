@@ -21,10 +21,10 @@
                 <shell:ApplicationBarMenuItem Text="refresh list" Click="RefreshList_Click"/>
                 <shell:ApplicationBarMenuItem Text="settings..." Click="Settings_Click"/>
             </shell:ApplicationBar.MenuItems>
-            <shell:ApplicationBarIconButton IconUri="/Assets/AppBar/appbar.new.rest.png" Text="new item" Click="NewItem_Click"/>
+            <shell:ApplicationBarIconButton IconUri="/Assets/AppBar/appbar.new.rest.png" Text="new item" Click="NewItem_Click" IsEnabled="True"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 
-    <controls:Pivot Title="COMMON LIST" ItemsSource="{Binding Lists}" ItemTemplate="{StaticResource ListTemplate}" HeaderTemplate="{StaticResource ListHeaderTemplate}"/>
+    <controls:Pivot x:Name="pvtLists" Title="COMMON LIST" ItemsSource="{Binding Lists}" ItemTemplate="{StaticResource ListTemplate}" HeaderTemplate="{StaticResource ListHeaderTemplate}"/>
 
 </phone:PhoneApplicationPage>

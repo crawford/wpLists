@@ -30,8 +30,9 @@
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="*"/>
-				<RowDefinition Height="Auto"/>
-			</Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*"/>
 				<ColumnDefinition Width="Auto"/>
@@ -40,6 +41,8 @@
             <ListBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="#FFB23535"/>
             <TextBox x:Name="txtListGuid" Grid.Row="1" Grid.Column="0" />
             <Button x:Name="btnSubscribe" Grid.Row="1" Grid.Column="1" Content="Subscribe to List" Click="Subscribe_Click"/>
+            <TextBox x:Name="txtListName" Grid.Row="2" Grid.Column="0" />
+            <Button x:Name="btnCreate" Grid.Row="2" Grid.Column="1" Content="Create List" Click="btnCreate_Click" />
         </Grid>
     </Grid>
 

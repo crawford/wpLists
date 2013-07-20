@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Linq.Mapping;
+using Lists.Data;
 //TODO Add one to many relation to list items
 namespace Lists
 {
@@ -20,6 +21,14 @@ namespace Lists
             _id = id;
             _title= title;
             _items = items;
+        }
+
+        public ItemViewModel CreateItem(String name)
+        {
+            ApiService api = new ApiService();
+            ItemViewModel item = api.CreateItem(name, true, this);
+            _items.Add(item);
+            return item;
         }
 
         #region Getters and Setters

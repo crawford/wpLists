@@ -56,5 +56,13 @@ namespace Lists.Views
                 MessageBox.Show(error.Message);
             });
         }
+
+        private void btnCreate_Click(object sender, RoutedEventArgs e)
+        {
+            ApiService api = new ApiService();
+            ListViewModel list = api.CreateList(Guid.NewGuid(), txtListName.Text);
+            App.ViewModel.Lists.Add(list);
+            txtListName.Text = "";
+        }
     }
 }

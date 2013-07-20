@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
 using Microsoft.Phone.Controls;
+using Microsoft.Phone.Shell;
 
 namespace Lists
 {
@@ -22,6 +25,8 @@ namespace Lists
             if (!App.ViewModel.IsDataLoaded)
             {
                 App.ViewModel.LoadData();
+                if (App.ViewModel.Lists.Count > 0)
+                    ((ApplicationBarIconButton)ApplicationBar.Buttons[0]).IsEnabled = true;
             }
         }
 
@@ -32,7 +37,8 @@ namespace Lists
 
         private void NewItem_Click(object sender, EventArgs e)
         {
-
+            ListViewModel list = (ListViewModel)pvtLists.SelectedItem;
+            list.CreateItem("test");
         }
 
         private void Settings_Click(object sender, EventArgs e)
